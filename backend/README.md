@@ -25,6 +25,20 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Supabase Authentication Setup
+
+1. Copy `.env.example` to `.env`.
+2. Fill in `SUPABASE_URL` and `SUPABASE_ANON_KEY` from your Supabase dashboard.
+3. Start the API: `npm run start:dev`.
+
+### Auth endpoints
+
+- `POST /auth/signup` with body `{ "email": "you@example.com", "password": "yourPassword", "fullName": "Your Name" }`
+- `POST /auth/signin` with body `{ "email": "you@example.com", "password": "yourPassword" }`
+- `GET /auth/me` with header `Authorization: Bearer <access_token>`
+
+The backend validates access tokens by calling Supabase Auth (`auth.getUser`) and returns the authenticated user.
+
 ## Project setup
 
 ```bash
