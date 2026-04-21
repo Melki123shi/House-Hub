@@ -8,6 +8,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { SignInAuthDto } from './dto/update-auth.dto';
 import { SUPABASE_CLIENT } from './supabase.client';
+import { UserRole } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -72,6 +73,37 @@ export class AuthService {
       );
     }
 
-    return data.user;
+    // Use app_metadata for authorization data; user_metadata is user-editable.
+    const role = this.normalizeRole(data.user.app_metadata?.role);
+    const roles = this.normalizeRoles(data.user.app_metadata?.roles);
+    return {
+      ...data.user,
+      role,
+      roles,
+    };
+  }
+
+  private normalizeRole(value: unknown): UserRole | undefined {
+    if (typeof value !== 'string') {
+      return undefined;
+    }
+
+    const normalized = value.toLowerCase();
+    return this.isUserRole(normalized) ? normalized : undefined;
+  }
+
+  private normalizeRoles(value: unknown): UserRole[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => item.toLowerCase())
+      .filter((item): item is UserRole => this.isUserRole(item));
+  }
+
+  private isUserRole(value: string): value is UserRole {
+    return Object.values(UserRole).includes(value as UserRole);
   }
 }
